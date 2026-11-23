@@ -14,6 +14,7 @@ jobs:
       - name: Build (unsigned)
         run: |
           cd McServer-build-ipa
+          sed -i '' 's/objectVersion = 110;/objectVersion = 77;/g' McServer.xcodeproj/project.pbxproj
           xcodebuild \
             -project McServer.xcodeproj \
             -scheme McServer \
