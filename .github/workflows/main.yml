@@ -1,0 +1,39 @@
+name: Build IPA
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build (unsigned)
+        run: |
+          cd McServer-build-ipa
+          xcodebuild \
+            -project McServer.xcodeproj \
+            -scheme McServer \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            DEVELOPMENT_TEAM="" \
+            build
+
+      - name: Package IPA
+        run: |
+          cd McServer-build-ipa
+          mkdir Payload
+          cp -R build/Build/Products/Release-iphoneos/McServer.app Payload/
+          zip -r -y McServer.ipa Payload
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: McServer-ipa
+          path: McServer-build-ipa/McServer.ipa
